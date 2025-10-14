@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niceleyici Doğruluk Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .quantifier {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .domain-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .answer-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .true-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .false-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+
+        .next-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .explanation {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .game-complete {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .final-score {
+            font-size: 2rem;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .game-modes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .mode-btn {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .puzzle-section {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .puzzle-section.active {
+            display: block;
+        }
+
+        .puzzle-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .puzzle-difficulty {
+            background: #ff9800;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .puzzle-difficulty.kolay {
+            background: #4caf50;
+        }
+
+        .puzzle-difficulty.orta {
+            background: #ff9800;
+        }
+
+        .puzzle-difficulty.zor {
+            background: #f44336;
+        }
+
+        .daily-puzzle-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .puzzle-timer {
+            background: #f44336;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .leaderboard-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="home-btn">← Ana Sayfa</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎯 Niceleyici Doğruluk Oyunu</h1>
+            <p>Evrensel (∀) ve Varoluşsal (∃) niceleyicilerle önermelerin doğruluğunu belirle!</p>
+            
+            <div class="game-modes">
+                <button class="mode-btn active" onclick="switchMode('normal')" id="normalMode">📚 Normal Oyun</button>
+                <button class="mode-btn" onclick="switchMode('puzzle')" id="puzzleMode">🧩 Bulmaca Modu</button>
+                <button class="mode-btn" onclick="switchMode('daily')" id="dailyMode">📅 Günlük Bulmaca</button>
+            </div>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">Soru</div>
+                <div class="score-value" id="questionNumber">1</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Doğru</div>
+                <div class="score-value" id="correctCount">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Puan</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+        </div>
+
+        <!-- Puzzle Mode Section -->
+        <div class="puzzle-section" id="puzzleSection">
+            <div class="puzzle-info">
+                <h3 id="puzzleTitle">Bulmaca Yükleniyor...</h3>
+                <div class="puzzle-difficulty" id="puzzleDifficulty">Orta</div>
+            </div>
+            <div class="daily-puzzle-info" id="dailyPuzzleInfo" style="display: none;">
+                <strong>📅 Günlük Bulmaca</strong> - Her gün yeni bir meydan okuma!
+                <div>Bugünkü tarih: <span id="todayDate"></span></div>
+            </div>
+            <div id="puzzleDescription"></div>
+            <button class="next-btn" onclick="loadRandomPuzzle()" id="newPuzzleBtn">🎲 Yeni Bulmaca</button>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-section" id="leaderboardSection">
+            <h3>🏆 Lider Tablosu</h3>
+            <div id="leaderboardContent">Lider tablosu yükleniyor...</div>
+            <button class="next-btn" onclick="toggleLeaderboard()">Gizle</button>
+        </div>
+
+        <div id="gameArea">
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="domain-info" id="domainInfo"></div>
+                
+                <!-- Puzzle specific content -->
+                <div id="puzzleContent" style="display: none;">
+                    <div class="puzzle-timer" id="puzzleTimer" style="display: none;">
+                        ⏱️ Süre: <span id="timeLeft">60</span>s
+                    </div>
+                </div>
+                
+                <div class="answer-buttons">
+                    <button class="answer-btn true-btn" onclick="checkAnswer(true)">Doğru</button>
+                    <button class="answer-btn false-btn" onclick="checkAnswer(false)">Yanlış</button>
+                </div>
+            </div>
+            <div id="feedback" class="feedback" style="display: none;"></div>
+        </div>
+
+        <div id="gameComplete" class="game-complete" style="display: none;">
+            <h2>🎉 Oyun Tamamlandı!</h2>
+            <div class="final-score" id="finalScore"></div>
+            <button class="next-btn" onclick="restartGame()">Tekrar Oyna</button>
+            <button class="next-btn" onclick="window.location.href='/'">Ana Sayfa</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "<span class='quantifier'>∀x ∈ ℕ</span> (x > 0)",
+                domain: "Doğal sayılar kümesi: ℕ = {1, 2, 3, 4, ...}",
+                answer: true,
+                explanation: "Tüm doğal sayılar 0'dan büyüktür, bu nedenle önerme doğrudur."
+            },
+            {
+                text: "<span class='quantifier'>∃x ∈ ℤ</span> (x² = 4)",
+                domain: "Tam sayılar kümesi: ℤ = {..., -2, -1, 0, 1, 2, ...}",
+                answer: true,
+                explanation: "x = 2 veya x = -2 için x² = 4 olur, bu nedenle önerme doğrudur."
+            },
+            {
+                text: "<span class='quantifier'>∀x ∈ ℝ</span> (x² ≥ 0)",
+                domain: "Gerçek sayılar kümesi: ℝ",
+                answer: true,
+                explanation: "Herhangi bir gerçek sayının karesi daima negatif olmayan bir değerdir."
+            },
+            {
+                text: "<span class='quantifier'>∃x ∈ ℕ</span> (x < 0)",
+                domain: "Doğal sayılar kümesi: ℕ = {1, 2, 3, 4, ...}",
+                answer: false,
+                explanation: "Doğal sayılar pozitif olduğu için hiçbiri 0'dan küçük değildir."
+            },
+            {
+                text: "<span class='quantifier'>∀x ∈ {2, 4, 6, 8}</span> (x çift sayıdır)",
+                domain: "Verilen küme: {2, 4, 6, 8}",
+                answer: true,
+                explanation: "Kümedeki tüm sayılar çift sayı olduğu için önerme doğrudur."
+            },
+            {
+                text: "<span class='quantifier'>∃x ∈ ℚ</span> (x² = 2)",
+                domain: "Rasyonel sayılar kümesi: ℚ = {a/b | a,b ∈ ℤ, b ≠ 0}",
+                answer: false,
+                explanation: "√2 irrasyonel bir sayıdır, bu nedenle rasyonel sayılar arasında karesi 2 olan yoktur."
+            },
+            {
+                text: "<span class='quantifier'>∀x ∈ ℝ</span> (x + 1 > x)",
+                domain: "Gerçek sayılar kümesi: ℝ",
+                answer: true,
+                explanation: "Herhangi bir gerçek sayıya 1 eklediğimizde kendisinden büyük bir sayı elde ederiz."
+            },
+            {
+                text: "<span class='quantifier'>∃x ∈ {1, 3, 5, 7}</span> (x çift sayıdır)",
+                domain: "Verilen küme: {1, 3, 5, 7}",
+                answer: false,
+                explanation: "Kümedeki tüm sayılar tek sayı olduğu için çift sayı yoktur."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let correctCount = 0;
+        let gameEnded = false;
+        let currentMode = 'normal';
+        let currentPuzzle = null;
+        let puzzleTimer = null;
+        let timeLeft = 60;
+
+        function displayQuestion() {
+            if (currentQuestion >= questions.length) {
+                endGame();
+                return;
+            }
+
+            const question = questions[currentQuestion];
+            document.getElementById('questionText').innerHTML = question.text;
+            document.getElementById('domainInfo').textContent = question.domain;
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('feedback').style.display = 'none';
+            
+            // Enable answer buttons
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            });
+        }
+
+        function checkAnswer(userAnswer) {
+            if (gameEnded) return;
+
+            const question = questions[currentQuestion];
+            const isCorrect = userAnswer === question.answer;
+            
+            // Disable answer buttons
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+            });
+
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+
+            if (isCorrect) {
+                correctCount++;
+                score += 10;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `
+                    <div>✅ Doğru! +10 puan</div>
+                    <div class="explanation">${question.explanation}</div>
+                    <button class="next-btn" onclick="nextQuestion()">Sonraki Soru</button>
+                `;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `
+                    <div>❌ Yanlış! Doğru cevap: ${question.answer ? 'Doğru' : 'Yanlış'}</div>
+                    <div class="explanation">${question.explanation}</div>
+                    <button class="next-btn" onclick="nextQuestion()">Sonraki Soru</button>
+                `;
+            }
+
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('score').textContent = score;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            displayQuestion();
+        }
+
+        function endGame() {
+            gameEnded = true;
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('gameComplete').style.display = 'block';
+            
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = 'Mükemmel! Niceleyicileri çok iyi anlıyorsun! 🌟';
+            } else if (percentage >= 60) {
+                message = 'İyi iş! Biraz daha pratikle mükemmel olacaksın! 👍';
+            } else {
+                message = 'Devam et! Pratik yaparak gelişebilirsin! 💪';
+            }
+
+            document.getElementById('finalScore').innerHTML = `
+                <div>Final Puanın: ${score}</div>
+                <div>Doğru: ${correctCount}/${questions.length} (%${percentage})</div>
+                <div style="margin-top: 15px; font-size: 1.2rem;">${message}</div>
+            `;
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            correctCount = 0;
+            gameEnded = false;
+            
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('gameComplete').style.display = 'none';
+            document.getElementById('score').textContent = '0';
+            document.getElementById('correctCount').textContent = '0';
+            
+            displayQuestion();
+        }
+
+        // Puzzle Mode Functions
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode + 'Mode').classList.add('active');
+            
+            // Show/hide sections
+            document.getElementById('puzzleSection').classList.toggle('active', mode !== 'normal');
+            document.getElementById('gameArea').style.display = mode === 'normal' ? 'block' : 'none';
+            
+            if (mode === 'puzzle') {
+                loadRandomPuzzle();
+            } else if (mode === 'daily') {
+                loadDailyPuzzle();
+            } else {
+                // Reset to normal game
+                currentQuestion = 0;
+                score = 0;
+                correctCount = 0;
+                gameEnded = false;
+                displayQuestion();
+            }
+        }
+
+        async function loadRandomPuzzle() {
+            try {
+                const response = await fetch('/api/get_puzzle/game1/' + Math.floor(Math.random() * 3));
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPuzzle = data.puzzle;
+                    displayPuzzle();
+                } else {
+                    console.error('Bulmaca yüklenemedi:', data.error);
+                }
+            } catch (error) {
+                console.error('API hatası:', error);
+                // Fallback to local puzzles
+                loadLocalPuzzle();
+            }
+        }
+
+        async function loadDailyPuzzle() {
+            try {
+                const response = await fetch('/api/get_daily_puzzle/game1');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPuzzle = data.puzzle;
+                    document.getElementById('dailyPuzzleInfo').style.display = 'block';
+                    document.getElementById('todayDate').textContent = data.puzzle.date;
+                    displayPuzzle();
+                } else {
+                    console.error('Günlük bulmaca yüklenemedi:', data.error);
+                }
+            } catch (error) {
+                console.error('API hatası:', error);
+                loadLocalPuzzle();
+            }
+        }
+
+        function loadLocalPuzzle() {
+            const localPuzzles = [
+                {
+                    id: 'local1',
+                    title: 'Yerel Bulmaca 1',
+                    description: 'Bu önermenin doğruluğunu belirleyin',
+                    statement: '∀x ∈ {1,2,3} (x² < 10)',
+                    domain: 'Küme: {1,2,3}',
+                    answer: true,
+                    explanation: '1²=1, 2²=4, 3²=9 ve hepsi 10\'dan küçük',
+                    points: 15,
+                    difficulty: 'kolay'
+                }
+            ];
+            
+            currentPuzzle = localPuzzles[0];
+            displayPuzzle();
+        }
+
+        function displayPuzzle() {
+            if (!currentPuzzle) return;
+            
+            document.getElementById('puzzleTitle').textContent = currentPuzzle.title;
+            document.getElementById('puzzleDifficulty').textContent = currentPuzzle.difficulty;
+            document.getElementById('puzzleDifficulty').className = 'puzzle-difficulty ' + currentPuzzle.difficulty;
+            document.getElementById('puzzleDescription').innerHTML = `
+                <p><strong>${currentPuzzle.description}</strong></p>
+                <div class="question-text">${currentPuzzle.statement}</div>
+                <div class="domain-info">${currentPuzzle.domain}</div>
+            `;
+            
+            // Show puzzle content in game area
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('questionText').innerHTML = currentPuzzle.statement;
+            document.getElementById('domainInfo').textContent = currentPuzzle.domain;
+            
+            // Start timer for timed puzzles
+            if (currentMode === 'daily') {
+                startPuzzleTimer();
+            }
+        }
+
+        function startPuzzleTimer() {
+            timeLeft = 60;
+            document.getElementById('puzzleContent').style.display = 'block';
+            document.getElementById('puzzleTimer').style.display = 'block';
+            
+            puzzleTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeLeft').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(puzzleTimer);
+                    alert('Süre doldu! Yeni bir bulmaca deneyin.');
+                    loadDailyPuzzle();
+                }
+            }, 1000);
+        }
+
+        async function savePuzzleProgress(puzzleId, score, correct) {
+            try {
+                await fetch('/api/save_progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        game: 'game1',
+                        puzzle_id: puzzleId,
+                        score: score,
+                        completed: correct ? 1 : 0
+                    })
+                });
+            } catch (error) {
+                console.error('İlerleme kaydedilemedi:', error);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('/api/leaderboard');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const leaderboardHtml = data.leaderboard.map((user, index) => `
+                        <div class="leaderboard-item">
+                            <span>${index + 1}. ${user.user_id}</span>
+                            <span>${user.total_score} puan</span>
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('leaderboardContent').innerHTML = leaderboardHtml;
+                }
+            } catch (error) {
+                console.error('Lider tablosu yüklenemedi:', error);
+            }
+        }
+
+        function toggleLeaderboard() {
+            const leaderboard = document.getElementById('leaderboardSection');
+            if (leaderboard.style.display === 'none' || !leaderboard.style.display) {
+                leaderboard.style.display = 'block';
+                loadLeaderboard();
+            } else {
+                leaderboard.style.display = 'none';
+            }
+        }
+
+        // Override checkAnswer for puzzle mode
+        const originalCheckAnswer = checkAnswer;
+        checkAnswer = function(userAnswer) {
+            if (currentMode !== 'normal' && currentPuzzle) {
+                const isCorrect = userAnswer === currentPuzzle.answer;
+                
+                if (puzzleTimer) {
+                    clearInterval(puzzleTimer);
+                    puzzleTimer = null;
+                }
+                
+                const feedback = document.getElementById('feedback');
+                feedback.style.display = 'block';
+                
+                if (isCorrect) {
+                    score += currentPuzzle.points;
+                    correctCount++;
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `
+                        <div>✅ Doğru! +${currentPuzzle.points} puan</div>
+                        <div class="explanation">${currentPuzzle.explanation}</div>
+                        <button class="next-btn" onclick="loadRandomPuzzle()">Yeni Bulmaca</button>
+                    `;
+                    
+                    savePuzzleProgress(currentPuzzle.id, currentPuzzle.points, true);
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `
+                        <div>❌ Yanlış! Doğru cevap: ${currentPuzzle.answer ? 'Doğru' : 'Yanlış'}</div>
+                        <div class="explanation">${currentPuzzle.explanation}</div>
+                        <button class="next-btn" onclick="loadRandomPuzzle()">Yeni Bulmaca</button>
+                    `;
+                    
+                    savePuzzleProgress(currentPuzzle.id, 0, false);
+                }
+                
+                document.getElementById('score').textContent = score;
+                document.getElementById('correctCount').textContent = correctCount;
+            } else {
+                originalCheckAnswer(userAnswer);
+            }
+        };
+
+        // Initialize game
+        displayQuestion();
+    </script>
+</body>
+</html>

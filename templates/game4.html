@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantık Labirenti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.2rem;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .maze-icon {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+
+        .game-modes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn.active {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .maze-container {
+            background: #fff;
+            border: 3px solid #1e3c72;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .maze-grid {
+            display: grid;
+            gap: 2px;
+            background: #34495e;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 0 auto;
+            max-width: 400px;
+            grid-template-columns: repeat(8, 1fr);
+        }
+
+        .maze-cell {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .maze-cell.wall {
+            background: #2c3e50;
+        }
+
+        .maze-cell.path {
+            background: #ecf0f1;
+        }
+
+        .maze-cell.start {
+            background: #27ae60;
+            color: white;
+        }
+
+        .maze-cell.end {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .maze-cell.player {
+            background: #3498db;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        .maze-cell.visited {
+            background: #f39c12;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .move-btn {
+            background: #3498db;
+            color: white;
+            min-width: 100px;
+        }
+
+        .action-btn {
+            background: #e67e22;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .next-btn {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .game-complete {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .final-score {
+            font-size: 2rem;
+            color: #e67e22;
+            margin: 20px 0;
+        }
+
+        /* Mini Loading Screen */
+        .mini-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .mini-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mini-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .mini-loading-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .mini-tip {
+            font-size: 0.9rem;
+            color: #ecf0f1;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .maze-cell {
+                width: 25px;
+                height: 25px;
+                font-size: 1rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mini Loading Screen -->
+    <div class="mini-loading" id="miniLoading">
+        <div class="mini-spinner"></div>
+        <div class="mini-loading-text">🧩 Labirent Hazırlanıyor...</div>
+        <div class="mini-tip">💡 İpucu: Mantık kurallarını kullanarak en kısa yolu bul!</div>
+    </div>
+
+    <a href="/" class="home-btn">← Ana Sayfa</a>
+    
+    <div class="container">
+        <div class="header">
+            <div class="maze-icon">🧩</div>
+            <h1 class="title">Mantık Labirenti</h1>
+            <p>Mantıksal kuralları kullanarak labirentten çık!</p>
+            
+            <div class="game-modes">
+                <button class="mode-btn active" onclick="switchMode('normal')" id="normalMode">🎯 Kolay Labirent</button>
+                <button class="mode-btn" onclick="switchMode('puzzle')" id="puzzleMode">🧩 Zor Labirent</button>
+                <button class="mode-btn" onclick="switchMode('daily')" id="dailyMode">📅 Günlük Meydan Okuma</button>
+                <button class="mode-btn" onclick="toggleLeaderboard()" id="leaderboardBtn">🏆 En Hızlı Çıkışlar</button>
+            </div>
+        </div>
+
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">Seviye</div>
+                <div class="info-value" id="levelNumber">1</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Hamle</div>
+                <div class="info-value" id="moveCount">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Puan</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+        </div>
+
+        <div id="gameArea">
+            <div class="maze-container">
+                <div class="maze-grid" id="mazeGrid"></div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn move-btn" onclick="movePlayer('up')" id="upBtn">⬆️ Yukarı</button>
+                <button class="control-btn move-btn" onclick="movePlayer('down')" id="downBtn">⬇️ Aşağı</button>
+                <button class="control-btn move-btn" onclick="movePlayer('left')" id="leftBtn">⬅️ Sol</button>
+                <button class="control-btn move-btn" onclick="movePlayer('right')" id="rightBtn">➡️ Sağ</button>
+                <button class="control-btn action-btn" onclick="getHint()">💡 İpucu</button>
+                <button class="control-btn reset-btn" onclick="resetLevel()">🔄 Sıfırla</button>
+            </div>
+            
+            <div id="feedback" class="feedback" style="display: none;"></div>
+        </div>
+
+        <div id="gameComplete" class="game-complete" style="display: none;">
+            <h2>🎉 Tüm Labirentler Tamamlandı!</h2>
+            <div class="maze-icon">🏆</div>
+            <div class="final-score" id="finalScore"></div>
+            <button class="next-btn" onclick="restartGame()">Yeni Labirentler</button>
+            <button class="next-btn" onclick="window.location.href='/'">Ana Sayfa</button>
+        </div>
+    </div>
+
+    <script>
+        const mazes = [
+            {
+                id: 1,
+                size: 8,
+                grid: [
+                    [1,1,1,1,1,1,1,1],
+                    [1,2,0,0,1,0,0,1],
+                    [1,0,1,0,1,0,1,1],
+                    [1,0,1,0,0,0,0,1],
+                    [1,0,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,1],
+                    [1,1,1,1,1,0,3,1],
+                    [1,1,1,1,1,1,1,1]
+                ],
+                hint: "Başlangıçtan çıkışa kadar en kısa yolu bul",
+                points: 50
+            },
+            {
+                id: 2,
+                size: 8,
+                grid: [
+                    [1,1,1,1,1,1,1,1],
+                    [1,2,0,1,0,0,0,1],
+                    [1,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,3,1],
+                    [1,1,1,1,1,1,1,1]
+                ],
+                hint: "Her adımda mantıksal kontrol yap: Gidebilir miyim?",
+                points: 75
+            }
+        ];
+
+        let currentLevel = 0;
+        let playerPos = {x: 1, y: 1};
+        let moveCount = 0;
+        let score = 0;
+        let gameEnded = false;
+        let currentMode = 'normal';
+        let visitedCells = new Set();
+
+        function initializeMaze() {
+            const maze = mazes[currentLevel];
+            const grid = document.getElementById('mazeGrid');
+            
+            grid.style.gridTemplateColumns = `repeat(${maze.size}, 1fr)`;
+            grid.innerHTML = '';
+            
+            // Find start position
+            for (let y = 0; y < maze.size; y++) {
+                for (let x = 0; x < maze.size; x++) {
+                    if (maze.grid[y][x] === 2) {
+                        playerPos = {x, y};
+                        break;
+                    }
+                }
+            }
+            
+            // Create maze cells
+            for (let y = 0; y < maze.size; y++) {
+                for (let x = 0; x < maze.size; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'maze-cell';
+                    cell.id = `cell-${x}-${y}`;
+                    
+                    const cellType = maze.grid[y][x];
+                    switch(cellType) {
+                        case 0: // Path
+                            cell.classList.add('path');
+                            break;
+                        case 1: // Wall
+                            cell.classList.add('wall');
+                            cell.textContent = '⬛';
+                            break;
+                        case 2: // Start
+                            cell.classList.add('player');
+                            cell.textContent = '🚀';
+                            break;
+                        case 3: // End
+                            cell.classList.add('end');
+                            cell.textContent = '🎯';
+                            break;
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+            
+            // Update UI
+            document.getElementById('levelNumber').textContent = currentLevel + 1;
+            moveCount = 0;
+            document.getElementById('moveCount').textContent = moveCount;
+            visitedCells.clear();
+            visitedCells.add(`${playerPos.x}-${playerPos.y}`);
+            
+            showFeedback('info', `Seviye ${currentLevel + 1}: ${maze.hint}`);
+        }
+
+        function movePlayer(direction) {
+            if (gameEnded) return;
+            
+            const maze = mazes[currentLevel];
+            let newX = playerPos.x;
+            let newY = playerPos.y;
+            
+            switch(direction) {
+                case 'up': newY--; break;
+                case 'down': newY++; break;
+                case 'left': newX--; break;
+                case 'right': newX++; break;
+            }
+            
+            // Check bounds
+            if (newX < 0 || newX >= maze.size || newY < 0 || newY >= maze.size) {
+                showFeedback('error', 'Labirent sınırlarını aştın!');
+                return;
+            }
+            
+            // Check wall
+            if (maze.grid[newY][newX] === 1) {
+                showFeedback('error', 'Duvara çarptın!');
+                return;
+            }
+            
+            // Valid move
+            moveCount++;
+            document.getElementById('moveCount').textContent = moveCount;
+            
+            // Update old position
+            const oldCell = document.getElementById(`cell-${playerPos.x}-${playerPos.y}`);
+            oldCell.classList.remove('player');
+            oldCell.classList.add('visited');
+            oldCell.textContent = '👣';
+            
+            // Update new position
+            playerPos.x = newX;
+            playerPos.y = newY;
+            visitedCells.add(`${newX}-${newY}`);
+            
+            const newCell = document.getElementById(`cell-${newX}-${newY}`);
+            
+            // Check if reached end
+            if (maze.grid[newY][newX] === 3) {
+                levelComplete();
+                return;
+            }
+            
+            newCell.classList.add('player');
+            newCell.textContent = '🚀';
+            
+            showFeedback('success', `Hamle ${moveCount}: ${direction.toUpperCase()} yönüne hareket ettiniz.`);
+        }
+
+        function levelComplete() {
+            const maze = mazes[currentLevel];
+            let levelScore = maze.points;
+            
+            score += levelScore;
+            document.getElementById('score').textContent = score;
+            
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            feedback.className = 'feedback success';
+            feedback.innerHTML = `
+                <div>🎉 Seviye ${currentLevel + 1} Tamamlandı! +${levelScore} puan</div>
+                <div>Hamle sayısı: ${moveCount}</div>
+                <button class="next-btn" onclick="nextLevel()">Sonraki Seviye</button>
+            `;
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            if (currentLevel >= mazes.length) {
+                endGame();
+            } else {
+                initializeMaze();
+            }
+        }
+
+        function getHint() {
+            const maze = mazes[currentLevel];
+            showFeedback('info', `💡 İpucu: ${maze.hint}`);
+        }
+
+        function resetLevel() {
+            initializeMaze();
+        }
+
+        function showFeedback(type, message) {
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            if (mode !== 'leaderboard') {
+                document.getElementById(mode + 'Mode').classList.add('active');
+            }
+        }
+
+        function toggleLeaderboard() {
+            alert('En hızlı çıkışlar tablosu yakında eklenecek!');
+        }
+
+        function endGame() {
+            gameEnded = true;
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('gameComplete').style.display = 'block';
+            
+            const totalMoves = moveCount;
+            let message = '';
+            
+            if (totalMoves <= 20) {
+                message = 'Mantık Ustası! Mükemmel performans! 🧠';
+            } else if (totalMoves <= 40) {
+                message = 'İyi Mantıkçı! Güzel çalışma! 👍';
+            } else {
+                message = 'Mantık Öğrencisi! Pratik yaparak gelişebilirsin! 💪';
+            }
+
+            document.getElementById('finalScore').innerHTML = `
+                <div>Final Puanın: ${score}</div>
+                <div>Toplam Hamle: ${totalMoves}</div>
+                <div style="margin-top: 15px; font-size: 1.2rem;">${message}</div>
+            `;
+        }
+
+        function restartGame() {
+            currentLevel = 0;
+            score = 0;
+            gameEnded = false;
+            
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('gameComplete').style.display = 'none';
+            document.getElementById('score').textContent = '0';
+            
+            initializeMaze();
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': movePlayer('up'); break;
+                case 'ArrowDown': movePlayer('down'); break;
+                case 'ArrowLeft': movePlayer('left'); break;
+                case 'ArrowRight': movePlayer('right'); break;
+            }
+        });
+
+        // Mini loading screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('miniLoading').classList.add('hidden');
+                setTimeout(() => {
+                    document.getElementById('miniLoading').style.display = 'none';
+                }, 300);
+            }, 2000); // 2 seconds loading
+        });
+
+        // Initialize game
+        initializeMaze();
+    </script>
+</body>
+</html>

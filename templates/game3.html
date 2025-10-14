@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantık Dedektifi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .detective-badge {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+
+        .game-modes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn.active {
+            background: #e74c3c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231,76,60,0.3);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #bdc3c7;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .case-file {
+            background: #fff;
+            border: 3px solid #e74c3c;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .case-title {
+            font-size: 1.4rem;
+            color: #e74c3c;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .evidence-section {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .evidence-title {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+
+        .suspect-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .suspect-card {
+            background: white;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suspect-card:hover {
+            border-color: #e74c3c;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .suspect-card.selected {
+            border-color: #e74c3c;
+            background: #ffeaa7;
+        }
+
+        .suspect-avatar {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .suspect-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .suspect-info {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .logic-panel {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .logic-title {
+            color: #2980b9;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .statement-builder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .logic-element {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logic-element:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .logic-element.selected {
+            background: #e74c3c;
+        }
+
+        .deduction-area {
+            background: #fff;
+            border: 2px dashed #95a5a6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 60px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        .deduction-area.has-content {
+            border-style: solid;
+            border-color: #27ae60;
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .solve-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .hint-btn {
+            background: #f39c12;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .hint {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .next-btn {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .game-complete {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .final-score {
+            font-size: 2rem;
+            color: #e74c3c;
+            margin: 20px 0;
+        }
+
+        .timer {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        /* Mini Loading Screen */
+        .mini-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .mini-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mini-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .mini-loading-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .mini-tip {
+            font-size: 0.9rem;
+            color: #ecf0f1;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .suspect-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mini Loading Screen -->
+    <div class="mini-loading" id="miniLoading">
+        <div class="mini-spinner"></div>
+        <div class="mini-loading-text">🕵️‍♂️ Vaka Hazırlanıyor...</div>
+        <div class="mini-tip">💡 İpucu: Mantıksal çıkarım yapmak için tüm kanıtları dikkatlice incele!</div>
+    </div>
+
+    <a href="/" class="home-btn">← Ana Sayfa</a>
+    
+    <div class="container">
+        <div class="header">
+            <div class="detective-badge">🕵️‍♂️</div>
+            <h1 class="title">Mantık Dedektifi</h1>
+            <p>Mantıksal çıkarımlarla suçluyu bul ve davayı çöz!</p>
+            
+            <div class="game-modes">
+                <button class="mode-btn active" onclick="switchMode('normal')" id="normalMode">🔍 Normal Vaka</button>
+                <button class="mode-btn" onclick="switchMode('puzzle')" id="puzzleMode">🧩 Zor Vaka</button>
+                <button class="mode-btn" onclick="switchMode('daily')" id="dailyMode">📅 Günlük Vaka</button>
+                <button class="mode-btn" onclick="toggleLeaderboard()" id="leaderboardBtn">🏆 En İyi Dedektifler</button>
+            </div>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">Vaka</div>
+                <div class="score-value" id="caseNumber">1</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Çözülen</div>
+                <div class="score-value" id="solvedCount">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Puan</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+        </div>
+
+        <div id="gameArea">
+            <div class="case-file">
+                <div class="case-title" id="caseTitle">Vaka Yükleniyor...</div>
+                
+                <div class="timer" id="caseTimer" style="display: none;">
+                    ⏰ Kalan Süre: <span id="timeLeft">300</span> saniye
+                </div>
+                
+                <div class="evidence-section">
+                    <div class="evidence-title">📋 Kanıtlar ve İpuçları</div>
+                    <div id="evidenceList"></div>
+                </div>
+
+                <div class="evidence-section">
+                    <div class="evidence-title">👥 Şüpheliler</div>
+                    <div class="suspect-grid" id="suspectGrid"></div>
+                </div>
+
+                <div class="logic-panel">
+                    <div class="logic-title">🧠 Mantıksal Çıkarım Yap</div>
+                    <div class="statement-builder" id="logicElements"></div>
+                    <div class="deduction-area" id="deductionArea">
+                        Mantıksal çıkarımını buraya kur...
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn solve-btn" onclick="solveCase()">🔍 Vakayı Çöz</button>
+                    <button class="action-btn hint-btn" onclick="getHint()">💡 İpucu Al</button>
+                    <button class="action-btn reset-btn" onclick="resetCase()">🔄 Sıfırla</button>
+                </div>
+            </div>
+            
+            <div id="feedback" class="feedback" style="display: none;"></div>
+        </div>
+
+        <div id="gameComplete" class="game-complete" style="display: none;">
+            <h2>🎉 Tüm Vakalar Çözüldü!</h2>
+            <div class="detective-badge">🏆</div>
+            <div class="final-score" id="finalScore"></div>
+            <button class="next-btn" onclick="restartGame()">Yeni Vakalar</button>
+            <button class="next-btn" onclick="window.location.href='/'">Ana Sayfa</button>
+        </div>
+    </div>
+
+    <script>
+        const cases = [
+            {
+                id: 1,
+                title: "Kayıp Matematik Kitabı Vakası",
+                evidence: [
+                    "Matematik kitabı dün akşam masada vardı",
+                    "Bu sabah kitap masada yoktu", 
+                    "Sadece Ali, Ayşe ve Mehmet eve girdi",
+                    "Ali: 'Ben kitabı görmedim'",
+                    "Ayşe: 'Eğer kitabı aldıysam, ders çalışmak içindi'",
+                    "Mehmet: 'Ben kitabı almadım VE Ayşe de almadı'"
+                ],
+                suspects: [
+                    {name: "Ali", avatar: "👨‍🎓", info: "Matematik sevmiyor", guilty: false},
+                    {name: "Ayşe", avatar: "👩‍🎓", info: "Sınavı var", guilty: true},
+                    {name: "Mehmet", avatar: "👨‍💼", info: "Yalan söylüyor", guilty: false}
+                ],
+                logicElements: ["∀", "∃", "∧", "∨", "→", "↔", "¬"],
+                solution: "Mehmet'in ifadesi yanlış çünkü Ayşe kitabı aldı",
+                explanation: "Mehmet 'Ben almadım VE Ayşe de almadı' dedi. Ancak Ayşe'nin sınavı olduğu için kitabı alması mantıklı. Mehmet'in ifadesi çelişkili.",
+                points: 25
+            },
+            {
+                id: 2,
+                title: "Sınıf Başkanlığı Seçim Vakası",
+                evidence: [
+                    "Sınıfta 3 aday var: Can, Deniz, Ece",
+                    "Can: 'Eğer kazanırsam, herkes mutlu olacak'",
+                    "Deniz: 'Can kazanırsa, ben üzülürüm'",
+                    "Ece: 'Deniz kazanmazsa, Can da kazanmaz'",
+                    "Sonuç: Sadece bir kişi kazanabilir",
+                    "Gerçek: Deniz kazandı"
+                ],
+                suspects: [
+                    {name: "Can", avatar: "👨‍🏫", info: "İddialı", guilty: false},
+                    {name: "Deniz", avatar: "👩‍💼", info: "Kazanan", guilty: false},
+                    {name: "Ece", avatar: "👩‍🎓", info: "Mantıklı düşünüyor", guilty: true}
+                ],
+                logicElements: ["→", "¬", "∧", "∨"],
+                solution: "Ece'nin tahmini doğru çıktı",
+                explanation: "Ece 'Deniz kazanmazsa, Can da kazanmaz' dedi. Deniz kazandığı için bu önerme doğru çıktı.",
+                points: 30
+            },
+            {
+                id: 3,
+                title: "Kayıp Ödev Vakası",
+                evidence: [
+                    "Öğretmen: 'Herkes ödevini teslim etmeli'",
+                    "Sınıfta 4 öğrenci var",
+                    "Fatma: 'Ben ödevimi yaptım'",
+                    "Gökhan: 'Fatma ödevini yapmadı VEYA ben yaptım'",
+                    "Hasan: 'Gökhan yalan söylüyor'",
+                    "İrem: 'En az biri ödevini yapmadı'"
+                ],
+                suspects: [
+                    {name: "Fatma", avatar: "👩‍🎓", info: "Çalışkan", guilty: false},
+                    {name: "Gökhan", avatar: "👨‍🎓", info: "Şüpheli", guilty: true},
+                    {name: "Hasan", avatar: "👨‍💼", info: "Doğru söylüyor", guilty: false},
+                    {name: "İrem", avatar: "👩‍💼", info: "Gözlemci", guilty: false}
+                ],
+                logicElements: ["∀", "∃", "∨", "¬"],
+                solution: "Gökhan ödevini yapmamış",
+                explanation: "Hasan 'Gökhan yalan söylüyor' dedi. Gökhan'ın ifadesi yanlışsa, Fatma ödevini yapmış VE Gökhan yapmamış demektir.",
+                points: 35
+            }
+        ];
+
+        let currentCase = 0;
+        let score = 0;
+        let solvedCount = 0;
+        let selectedSuspect = null;
+        let selectedLogic = [];
+        let gameEnded = false;
+        let currentMode = 'normal';
+        let caseTimer = null;
+        let timeLeft = 300;
+
+        function displayCase() {
+            if (currentCase >= cases.length) {
+                endGame();
+                return;
+            }
+
+            const caseData = cases[currentCase];
+            document.getElementById('caseTitle').textContent = caseData.title;
+            document.getElementById('caseNumber').textContent = currentCase + 1;
+            
+            // Display evidence
+            const evidenceHtml = caseData.evidence.map(evidence => 
+                `<div style="margin: 5px 0; padding: 8px; background: white; border-radius: 5px;">• ${evidence}</div>`
+            ).join('');
+            document.getElementById('evidenceList').innerHTML = evidenceHtml;
+            
+            // Display suspects
+            const suspectHtml = caseData.suspects.map((suspect, index) => 
+                `<div class="suspect-card" onclick="selectSuspect(${index})">
+                    <div class="suspect-avatar">${suspect.avatar}</div>
+                    <div class="suspect-name">${suspect.name}</div>
+                    <div class="suspect-info">${suspect.info}</div>
+                </div>`
+            ).join('');
+            document.getElementById('suspectGrid').innerHTML = suspectHtml;
+            
+            // Display logic elements
+            const logicHtml = caseData.logicElements.map(element => 
+                `<div class="logic-element" onclick="selectLogic('${element}')">${element}</div>`
+            ).join('');
+            document.getElementById('logicElements').innerHTML = logicHtml;
+            
+            // Reset selections
+            selectedSuspect = null;
+            selectedLogic = [];
+            document.getElementById('deductionArea').textContent = 'Mantıksal çıkarımını buraya kur...';
+            document.getElementById('deductionArea').className = 'deduction-area';
+            document.getElementById('feedback').style.display = 'none';
+            
+            if (currentMode === 'daily') {
+                startTimer();
+            }
+        }
+
+        function selectSuspect(index) {
+            selectedSuspect = index;
+            document.querySelectorAll('.suspect-card').forEach((card, i) => {
+                card.classList.toggle('selected', i === index);
+            });
+        }
+
+        function selectLogic(element) {
+            selectedLogic.push(element);
+            updateDeduction();
+        }
+
+        function updateDeduction() {
+            if (selectedLogic.length > 0) {
+                document.getElementById('deductionArea').textContent = selectedLogic.join(' ');
+                document.getElementById('deductionArea').className = 'deduction-area has-content';
+            }
+        }
+
+        function solveCase() {
+            if (selectedSuspect === null) {
+                alert('Lütfen bir şüpheli seçin!');
+                return;
+            }
+
+            const caseData = cases[currentCase];
+            const isCorrect = caseData.suspects[selectedSuspect].guilty;
+            
+            if (caseTimer) {
+                clearInterval(caseTimer);
+                caseTimer = null;
+            }
+            
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+
+            if (isCorrect) {
+                solvedCount++;
+                score += caseData.points;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `
+                    <div>🎉 Tebrikler! Vakayı doğru çözdünüz! +${caseData.points} puan</div>
+                    <div style="margin-top: 10px;"><strong>Açıklama:</strong> ${caseData.explanation}</div>
+                    <button class="next-btn" onclick="nextCase()">Sonraki Vaka</button>
+                `;
+            } else {
+                feedback.className = 'feedback incorrect';
+                const correctSuspect = caseData.suspects.find(s => s.guilty);
+                feedback.innerHTML = `
+                    <div>❌ Yanlış! Doğru cevap: ${correctSuspect.name}</div>
+                    <div style="margin-top: 10px;"><strong>Açıklama:</strong> ${caseData.explanation}</div>
+                    <button class="next-btn" onclick="nextCase()">Sonraki Vaka</button>
+                `;
+            }
+
+            document.getElementById('solvedCount').textContent = solvedCount;
+            document.getElementById('score').textContent = score;
+        }
+
+        function getHint() {
+            const caseData = cases[currentCase];
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            feedback.className = 'feedback hint';
+            feedback.innerHTML = `
+                <div>💡 İpucu: ${caseData.solution}</div>
+                <div style="margin-top: 10px;">Mantıksal bağlaçları kullanarak çıkarım yapın!</div>
+            `;
+        }
+
+        function resetCase() {
+            selectedSuspect = null;
+            selectedLogic = [];
+            document.querySelectorAll('.suspect-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('deductionArea').textContent = 'Mantıksal çıkarımını buraya kur...';
+            document.getElementById('deductionArea').className = 'deduction-area';
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function nextCase() {
+            currentCase++;
+            displayCase();
+        }
+
+        function startTimer() {
+            timeLeft = 300;
+            document.getElementById('caseTimer').style.display = 'block';
+            
+            caseTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeLeft').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(caseTimer);
+                    alert('Süre doldu! Sonraki vakaya geçiliyor.');
+                    nextCase();
+                }
+            }, 1000);
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            if (mode !== 'leaderboard') {
+                document.getElementById(mode + 'Mode').classList.add('active');
+            }
+        }
+
+        function toggleLeaderboard() {
+            alert('En iyi dedektifler tablosu yakında eklenecek!');
+        }
+
+        function endGame() {
+            gameEnded = true;
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('gameComplete').style.display = 'block';
+            
+            const percentage = Math.round((solvedCount / cases.length) * 100);
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = 'Mükemmel Dedektif! Sherlock Holmes\'u kıskandırıyorsun! 🕵️‍♂️';
+            } else if (percentage >= 60) {
+                message = 'İyi Dedektif! Biraz daha pratikle mükemmel olacaksın! 👍';
+            } else {
+                message = 'Acemi Dedektif! Pratik yaparak gelişebilirsin! 💪';
+            }
+
+            document.getElementById('finalScore').innerHTML = `
+                <div>Final Puanın: ${score}</div>
+                <div>Çözülen Vakalar: ${solvedCount}/${cases.length} (%${percentage})</div>
+                <div style="margin-top: 15px; font-size: 1.2rem;">${message}</div>
+            `;
+        }
+
+        function restartGame() {
+            currentCase = 0;
+            score = 0;
+            solvedCount = 0;
+            gameEnded = false;
+            
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('gameComplete').style.display = 'none';
+            document.getElementById('score').textContent = '0';
+            document.getElementById('solvedCount').textContent = '0';
+            
+            displayCase();
+        }
+
+        // Mini loading screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('miniLoading').classList.add('hidden');
+                setTimeout(() => {
+                    document.getElementById('miniLoading').style.display = 'none';
+                }, 300);
+            }, 1500);
+        });
+
+        // Initialize game
+        displayCase();
+    </script>
+</body>
+</html>
